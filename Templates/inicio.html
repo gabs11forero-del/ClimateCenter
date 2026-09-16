@@ -1,0 +1,843 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<!-- FontAwesome, Chart.js y Leaflet CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+    /* PALETA EN TONOS PASTELES (PASTEL COLORS) */
+    :root {
+        --bg-main: #f4f7fb;
+        --card-bg: #ffffff;
+        --text-dark: #334155;
+        --text-muted: #64748b;
+
+        /* Pasteles */
+        --pastel-blue-bg: #e0f2fe;
+        --pastel-blue-accent: #38bdf8;
+        --pastel-purple-bg: #f3e8ff;
+        --pastel-purple-accent: #a855f7;
+        --pastel-green-bg: #e6f4ea;
+        --pastel-green-accent: #34d399;
+        --pastel-yellow-bg: #fef9c3;
+        --pastel-yellow-accent: #facc15;
+        --pastel-red-bg: #ffe4e6;
+        --pastel-red-accent: #fb7185;
+    }
+
+    body {
+        background-color: var(--bg-main);
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        color: var(--text-dark);
+    }
+
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+
+
+    /* Tarjetas principales estilo pastel */
+    .card {
+        background: var(--card-bg);
+        border-radius: 14px;
+        padding: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .card-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Pestañas (Tabs) estilo pastel */
+    .tab-group {
+        display: flex;
+        gap: 4px;
+        background: #f1f5f9;
+        padding: 3px;
+        border-radius: 8px;
+    }
+
+    .tab-btn {
+        border: none;
+        background: transparent;
+        padding: 4px 10px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .tab-btn.active {
+        background: #c084fc;
+        color: white;
+    }
+
+    .tab-btn-blue.active {
+        background: #38bdf8;
+        color: white;
+    }
+
+    /* FILA 1: Top Metrics Pastel */
+    .top-metrics-bar {
+        grid-column: span 12;
+        display: flex;
+        gap: 10px;
+    }
+
+    .metric-card-top {
+        flex: 1;
+        background: white;
+        border-radius: 12px;
+        padding: 12px 14px;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .metric-icon-box {
+        font-size: 1.8rem;
+    }
+
+    .metric-data h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .metric-data p {
+        margin: 0;
+        font-size: 0.72rem;
+        color: var(--text-muted);
+    }
+
+    .metric-badge {
+        font-size: 0.68rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-top: 3px;
+        font-weight: 600;
+    }
+
+    .status-card-top {
+        flex: 1.6;
+        background: var(--pastel-green-bg);
+        border-color: #a7f3d0;
+    }
+
+    .status-card-top h3 {
+        color: #065f46;
+        font-size: 0.95rem;
+        margin: 0 0 4px 0;
+    }
+
+    .status-card-top p {
+        color: #047857;
+        font-size: 0.78rem;
+        margin: 0;
+    }
+
+    /* Layout general */
+    .main-content {
+        grid-column: span 9;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .sidebar-content {
+        grid-column: span 3;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .chart-box {
+        position: relative;
+        width: 100%;
+        height: 180px;
+    }
+
+    .inner-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    /* Pronóstico de 5 Días */
+    .forecast-flex {
+        display: flex;
+        justify-content: space-between;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .forecast-col p {
+        margin: 3px 0;
+        font-size: 0.78rem;
+    }
+
+    .forecast-col .temp-max {
+        font-weight: 700;
+    }
+
+    .forecast-col .temp-min {
+        color: var(--text-muted);
+        font-size: 0.7rem;
+    }
+
+    /* Estadísticas climáticas estilo pastel */
+    .stats-custom-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .stat-item-box {
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 8px;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .stat-item-icon {
+        font-size: 1.2rem;
+    }
+
+    .stat-item-val {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .stat-item-lbl {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    .stat-trend {
+        font-size: 0.65rem;
+        color: #10b981;
+        font-weight: 600;
+        float: right;
+    }
+
+    .info-subcard {
+        background: var(--pastel-green-bg);
+        border: 1px solid #a7f3d0;
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin-top: 8px;
+        font-size: 0.75rem;
+        color: #065f46;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    /* Alerta y prevención estilo pastel suave */
+    .alert-card-sidebar {
+        background: #fff1f2;
+        border-color: #fecdd3;
+    }
+
+    .alert-badge {
+        background: #fef08a;
+        color: #854d0e;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 700;
+    }
+
+    .quick-list {
+        list-style: none;
+        padding: 0;
+        margin: 10px 0 0 0;
+    }
+
+    .quick-list li {
+        font-size: 0.75rem;
+        color: var(--text-dark);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .grid-icons-emergency {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    .icon-btn-emergency {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px 4px;
+        cursor: pointer;
+        transition: transform 0.1s ease;
+    }
+
+    .icon-btn-emergency:hover {
+        transform: translateY(-2px);
+    }
+
+    .icon-btn-emergency i {
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .icon-btn-emergency span {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        display: block;
+        line-height: 1.1;
+    }
+
+    @media (max-width: 1024px) {
+
+        .main-content,
+        .sidebar-content {
+            grid-column: span 12;
+        }
+
+        .top-metrics-bar {
+            flex-wrap: wrap;
+        }
+
+        .metric-card-top {
+            min-width: 45%;
+        }
+
+        .inner-grid-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-grid">
+
+    <!-- FILA SUPERIOR: MÉTRICAS CLIMÁTICAS EN TONOS PASTELES -->
+    <div class="top-metrics-bar">
+        <div class="metric-card-top">
+            <div class="metric-icon-box" style="color: #fbbf24;"><i class="fas fa-sun"></i></div>
+            <div class="metric-data">
+                <h3>18°C</h3>
+                <p>Temperatura actual</p>
+                <span class="metric-badge" style="background: var(--pastel-yellow-bg); color: #854d0e;">Sensación
+                    térmica: 17°C</span>
+            </div>
+        </div>
+        <div class="metric-card-top">
+            <div class="metric-icon-box" style="color: #38bdf8;"><i class="fas fa-tint"></i></div>
+            <div class="metric-data">
+                <h3>72%</h3>
+                <p>Humedad</p>
+                <span class="metric-badge" style="background: var(--pastel-green-bg); color: #065f46;">Alta</span>
+            </div>
+        </div>
+        <div class="metric-card-top">
+            <div class="metric-icon-box" style="color: #60a5fa;"><i class="fas fa-cloud-showers-heavy"></i></div>
+            <div class="metric-data">
+                <h3>4.2 mm</h3>
+                <p>Precipitación</p>
+                <span class="metric-badge" style="background: var(--pastel-blue-bg); color: #0369a1;">Últimas 24
+                    h</span>
+            </div>
+        </div>
+        <div class="metric-card-top">
+            <div class="metric-icon-box" style="color: #94a3b8;"><i class="fas fa-wind"></i></div>
+            <div class="metric-data">
+                <h3>12 km/h</h3>
+                <p>Viento</p>
+                <span class="metric-badge" style="background: #f1f5f9; color: #475569;">Dirección: NE</span>
+            </div>
+        </div>
+        <div class="metric-card-top">
+            <div class="metric-icon-box" style="color: #c084fc;"><i class="fas fa-cloud"></i></div>
+            <div class="metric-data">
+                <h3>68%</h3>
+                <p>Nubosidad</p>
+                <span class="metric-badge" style="background: var(--pastel-purple-bg); color: #6b21a8;">Parcialmente
+                    nublado</span>
+            </div>
+        </div>
+        <div class="metric-card-top">
+            <div class="metric-icon-box" style="color: #facc15;"><i class="fas fa-sun"></i></div>
+            <div class="metric-data">
+                <h3>UV</h3>
+                <p>Moderado</p>
+                <span class="metric-badge" style="background: var(--pastel-yellow-bg); color: #854d0e;">4/11</span>
+            </div>
+        </div>
+        <div class="metric-card-top status-card-top">
+            <div class="metric-icon-box" style="color: #34d399;"><i class="fas fa-shield-alt"></i></div>
+            <div>
+                <h3>Estado actual en Sopó</h3>
+                <p><strong><i class="fas fa-check-circle"></i> No hay alertas activas</strong></p>
+                <span style="font-size: 0.68rem; color: #065f46;">Las condiciones actuales no presentan riesgos
+                    meteorológicos significativos.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN IZQUIERDA Y CENTRAL (MAIN) -->
+    <div class="main-content">
+
+        <!-- Fila: Evolución Temp y Pronóstico -->
+        <div class="inner-grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-chart-line" style="color: #c084fc;"></i> Evolución de la
+                        temperatura</h3>
+                    <div class="tab-group">
+                        <button class="tab-btn active" onclick="cambiarFiltroTemp('24h', this)">24 horas</button>
+                        <button class="tab-btn" onclick="cambiarFiltroTemp('7d', this)">7 días</button>
+                        <button class="tab-btn" onclick="cambiarFiltroTemp('30d', this)">30 días</button>
+                        <button class="tab-btn" onclick="cambiarFiltroTemp('1a', this)">1 año</button>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <canvas id="tempEvolucionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="far fa-calendar-alt" style="color: #38bdf8;"></i> Pronóstico de
+                        5 días</h3>
+                </div>
+                <div class="forecast-flex">
+                    <div class="forecast-col">
+                        <p><b>Hoy</b></p>
+                        <i class="fas fa-cloud-sun" style="color: #facc15; font-size: 1.4rem;"></i>
+                        <p class="temp-max">18°</p>
+                        <p class="temp-min">11°</p>
+                    </div>
+                    <div class="forecast-col">
+                        <p>Vie</p>
+                        <i class="fas fa-cloud-showers-heavy" style="color: #38bdf8; font-size: 1.4rem;"></i>
+                        <p class="temp-max">17°</p>
+                        <p class="temp-min">12°</p>
+                    </div>
+                    <div class="forecast-col">
+                        <p>Sáb</p>
+                        <i class="fas fa-cloud" style="color: #cbd5e1; font-size: 1.4rem;"></i>
+                        <p class="temp-max">16°</p>
+                        <p class="temp-min">10°</p>
+                    </div>
+                    <div class="forecast-col">
+                        <p>Dom</p>
+                        <i class="fas fa-sun" style="color: #facc15; font-size: 1.4rem;"></i>
+                        <p class="temp-max">19°</p>
+                        <p class="temp-min">11°</p>
+                    </div>
+                    <div class="forecast-col">
+                        <p>Lun</p>
+                        <i class="fas fa-cloud-sun-rain" style="color: #38bdf8; font-size: 1.4rem;"></i>
+                        <p class="temp-max">18°</p>
+                        <p class="temp-min">12°</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fila: Precipitación y Estadísticas Climáticas -->
+        <div class="inner-grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-cloud-rain" style="color: #38bdf8;"></i> Precipitación
+                    </h3>
+                </div>
+                <p style="font-size: 0.72rem; color: var(--text-muted); margin: -8px 0 10px 0;">Precipitación
+                    acumulada por día (mm)</p>
+                <div class="chart-box" style="height: 140px;">
+                    <canvas id="precipitacionChart"></canvas>
+                </div>
+                <div class="info-subcard">
+                    <span><i class="fas fa-umbrella"></i> Día más lluvioso: <strong>Jueves (16.7 mm)</strong></span>
+                    <span>Precipitación acumulada (7 días): <strong>55.5 mm</strong></span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-chart-bar" style="color: #38bdf8;"></i> Estadísticas
+                        climáticas</h3>
+                    <div class="tab-group">
+                        <button class="tab-btn tab-btn-blue active" onclick="cambiarFiltroStats('mes', this)">Este
+                            mes</button>
+                        <button class="tab-btn tab-btn-blue" onclick="cambiarFiltroStats('anterior', this)">Mes
+                            anterior</button>
+                    </div>
+                </div>
+                <div class="stats-custom-grid">
+                    <div class="stat-item-box">
+                        <i class="fas fa-thermometer-half stat-item-icon" style="color: #fb7185;"></i>
+                        <div>
+                            <p class="stat-item-lbl">Temp. promedio</p>
+                            <p class="stat-item-val" id="stat-temp-prom">17.8°C <span class="stat-trend">↑
+                                    1.2°C</span></p>
+                        </div>
+                    </div>
+                    <div class="stat-item-box">
+                        <i class="fas fa-cloud-rain stat-item-icon" style="color: #38bdf8;"></i>
+                        <div>
+                            <p class="stat-item-lbl">Precipitación promedio</p>
+                            <p class="stat-item-val" id="stat-prec-prom">7.6 mm <span class="stat-trend">↑ 2.3
+                                    mm</span></p>
+                        </div>
+                    </div>
+                    <div class="stat-item-box">
+                        <i class="fas fa-sun stat-item-icon" style="color: #facc15;"></i>
+                        <div>
+                            <p class="stat-item-lbl">Temp. máxima</p>
+                            <p class="stat-item-val" id="stat-temp-max">22.4°C <span class="stat-trend">↑
+                                    0.8°C</span></p>
+                        </div>
+                    </div>
+                    <div class="stat-item-box">
+                        <i class="fas fa-tint stat-item-icon" style="color: #38bdf8;"></i>
+                        <div>
+                            <p class="stat-item-lbl">Humedad promedio</p>
+                            <p class="stat-item-val" id="stat-hum-prom">74% <span class="stat-trend">↑ 5%</span></p>
+                        </div>
+                    </div>
+                    <div class="stat-item-box">
+                        <i class="fas fa-snowflake stat-item-icon" style="color: #60a5fa;"></i>
+                        <div>
+                            <p class="stat-item-lbl">Temp. mínima</p>
+                            <p class="stat-item-val" id="stat-temp-min">12.7°C <span class="stat-trend">↑
+                                    0.6°C</span></p>
+                        </div>
+                    </div>
+                    <div class="stat-item-box">
+                        <i class="fas fa-wind stat-item-icon" style="color: #94a3b8;"></i>
+                        <div>
+                            <p class="stat-item-lbl">Viento promedio</p>
+                            <p class="stat-item-val" id="stat-viento-prom">11.3 km/h <span class="stat-trend">↑ 1.8
+                                    km/h</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fila: Mapa Climático y Comparación Histórica -->
+        <div class="inner-grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-map-marked-alt" style="color: #38bdf8;"></i> Mapa
+                        climático de Sopó</h3>
+                    <div class="tab-group">
+                        <button class="tab-btn tab-btn-blue active">Temperatura</button>
+                        <button class="tab-btn tab-btn-blue">Lluvia</button>
+                        <button class="tab-btn tab-btn-blue">Viento</button>
+                        <button class="tab-btn tab-btn-blue">Humedad</button>
+                    </div>
+                </div>
+                <div id="mapaSopo" style="height: 160px; border-radius: 8px;"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-chart-area" style="color: #38bdf8;"></i> Comparación
+                        histórica</h3>
+                    <div class="tab-group">
+                        <button class="tab-btn tab-btn-blue active"
+                            onclick="cambiarHistorico('temp', this)">Temperatura</button>
+                        <button class="tab-btn tab-btn-blue"
+                            onclick="cambiarHistorico('prec', this)">Precipitación</button>
+                        <button class="tab-btn tab-btn-blue" onclick="cambiarHistorico('hum', this)">Humedad</button>
+                    </div>
+                </div>
+                <div class="chart-box" style="height: 160px;">
+                    <canvas id="historicoChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SECCIÓN DERECHA (SIDEBAR ALERTA SOPÓ Y PREVENCIÓN) -->
+    <div class="sidebar-content">
+
+        <!-- Tabla de Alerta Actual en Sopó -->
+        <div class="card alert-card-sidebar">
+            <div class="card-header">
+                <h3 class="card-title" style="color: #e11d48;"><i class="fas fa-exclamation-triangle"></i> Alerta
+                    actual en Sopó</h3>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <i class="fas fa-cloud-showers-heavy" style="font-size: 2rem; color: #38bdf8;"></i>
+                <div>
+                    <p style="margin: 0; font-weight: 700; color: #9f1239; font-size: 0.85rem;">Lluvias moderadas
+                    </p>
+                    <span class="alert-badge">Nivel: Precaución</span>
+                    <p style="margin: 4px 0 0 0; font-size: 0.72rem; color: #881337;">Se esperan precipitaciones
+                        durante las próximas horas.</p>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #fecdd3; margin: 12px 0;">
+
+            <h4 style="margin: 0; font-size: 0.8rem; color: #9f1239;">Consejos rápidos</h4>
+            <ul class="quick-list">
+                <li><i class="fas fa-umbrella" style="color: #38bdf8;"></i> Lleva paraguas o impermeable.</li>
+                <li><i class="fas fa-water" style="color: #38bdf8;"></i> Evita cruzar ríos, quebradas o zonas
+                    inundables.</li>
+                <li><i class="fas fa-bullhorn" style="color: #38bdf8;"></i> Mantente informado por canales
+                    oficiales.</li>
+            </ul>
+        </div>
+
+        <!-- Centro de Prevención -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-life-ring" style="color: #fb7185;"></i> Centro de prevención
+                    y emergencias</h3>
+                <a href="#" style="font-size: 0.7rem; color: #38bdf8; text-decoration: none;">Ver todas →</a>
+            </div>
+            <p style="font-size: 0.72rem; color: var(--text-muted); margin: -8px 0 8px 0;">¿Qué hacer ante una
+                alerta climática?</p>
+
+            <div class="grid-icons-emergency">
+                <div class="icon-btn-emergency">
+                    <i class="fas fa-bolt" style="color: #c084fc;"></i>
+                    <span>Tormenta eléctrica</span>
+                </div>
+                <div class="icon-btn-emergency">
+                    <i class="fas fa-cloud-showers-heavy" style="color: #38bdf8;"></i>
+                    <span>Lluvias intensas</span>
+                </div>
+                <div class="icon-btn-emergency">
+                    <i class="fas fa-house-damage" style="color: #22d3ee;"></i>
+                    <span>Inundación</span>
+                </div>
+                <div class="icon-btn-emergency">
+                    <i class="fas fa-wind" style="color: #34d399;"></i>
+                    <span>Vientos fuertes</span>
+                </div>
+                <div class="icon-btn-emergency">
+                    <i class="fas fa-mountain" style="color: #fbbf24;"></i>
+                    <span>Deslizamientos</span>
+                </div>
+                <div class="icon-btn-emergency">
+                    <i class="fas fa-temperature-high" style="color: #fb7185;"></i>
+                    <span>Calor extremo</span>
+                </div>
+                <div class="icon-btn-emergency">
+                    <i class="fas fa-smog" style="color: #94a3b8;"></i>
+                    <span>Baja visibilidad</span>
+                </div>
+                <div class="icon-btn-emergency">
+                    <i class="fas fa-temperature-low" style="color: #f472b6;"></i>
+                    <span>Temperaturas extremas</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Consejos y Recomendaciones -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-lightbulb" style="color: #34d399;"></i> Consejos y
+                    recomendaciones</h3>
+                <a href="#" style="font-size: 0.7rem; color: #38bdf8; text-decoration: none;">Ver más →</a>
+            </div>
+
+            <div class="grid-icons-emergency" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="icon-btn-emergency">
+                    <i class="fas fa-tshirt" style="color: #34d399;"></i>
+                    <span>Qué llevar según el clima</span>
+                </div>
+                <div class="icon-btn-emergency">
+                    <i class="fas fa-glasses" style="color: #facc15;"></i>
+                    <span>Cuidado con la radiación UV</span>
+                </div>
+                <div class="icon-btn-emergency">
+                    <i class="fas fa-head-side-mask" style="color: #38bdf8;"></i>
+                    <span>Protege tu salud respiratoria</span>
+                </div>
+                <div class="icon-btn-emergency">
+                    <i class="fas fa-leaf" style="color: #34d399;"></i>
+                    <span>Cuida la naturaleza</span>
+                </div>
+            </div>
+
+            <div
+                style="background: var(--pastel-blue-bg); border-radius: 8px; padding: 8px 10px; margin-top: 10px; font-size: 0.68rem; color: #0369a1; display: flex; gap: 8px; align-items: flex-start;">
+                <i class="fas fa-info-circle" style="margin-top: 2px;"></i>
+                <span><strong>Recuerda:</strong> estas recomendaciones no reemplazan las indicaciones de las
+                    autoridades locales y nacionales. En caso de emergencia, comunícate con los números
+                    oficiales.</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Script CDN Chart.js y Leaflet -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    let chartTempEvolucion, chartPrecip, chartHistorico;
+
+    // 1. CHART EVOLUCIÓN CON COLORES PASTELES
+    const datosTemp = {
+        '24h': { labels: ['12 a. m.', '4 a. m.', '8 a. m.', '12 p. m.', '4 p. m.', '8 p. m.'], data: [15, 13, 14, 17, 18, 14] },
+        '7d': { labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'], data: [17, 18, 16, 19, 17, 16, 18] },
+        '30d': { labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'], data: [16.5, 17.2, 18.0, 17.5] },
+        '1a': { labels: ['Ene', 'Mar', 'May', 'Jul', 'Sep', 'Nov'], data: [15, 16, 17, 16, 18, 15] }
+    };
+
+    const ctxTemp = document.getElementById('tempEvolucionChart').getContext('2d');
+    chartTempEvolucion = new Chart(ctxTemp, {
+        type: 'line',
+        data: {
+            labels: datosTemp['24h'].labels,
+            datasets: [{
+                label: 'Temperatura (°C)',
+                data: datosTemp['24h'].data,
+                borderColor: '#c084fc',
+                backgroundColor: 'rgba(192, 132, 252, 0.15)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#c084fc'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+        }
+    });
+
+    function cambiarFiltroTemp(rango, btn) {
+        document.querySelectorAll('.tab-group .tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        chartTempEvolucion.data.labels = datosTemp[rango].labels;
+        chartTempEvolucion.data.datasets[0].data = datosTemp[rango].data;
+        chartTempEvolucion.update();
+    }
+
+    // 2. CHART PRECIPITACIÓN PASTEL
+    const ctxPrecip = document.getElementById('precipitacionChart').getContext('2d');
+    chartPrecip = new Chart(ctxPrecip, {
+        type: 'bar',
+        data: {
+            labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+            datasets: [{
+                label: 'Precipitación (mm)',
+                data: [6.2, 12.4, 8.9, 16.7, 9.9, 2.4, 2.1],
+                backgroundColor: '#7dd3fc',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+        }
+    });
+
+    // 3. CAMBIO DE DÍA/MES
+    function cambiarFiltroStats(tipo, btn) {
+        btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (tipo === 'mes') {
+            document.getElementById('stat-temp-prom').innerHTML = '17.8°C <span class="stat-trend">↑ 1.2°C</span>';
+            document.getElementById('stat-prec-prom').innerHTML = '7.6 mm <span class="stat-trend">↑ 2.3 mm</span>';
+        } else {
+            document.getElementById('stat-temp-prom').innerHTML = '16.6°C <span class="stat-trend">↓ 0.5°C</span>';
+            document.getElementById('stat-prec-prom').innerHTML = '5.3 mm <span class="stat-trend">↓ 1.1 mm</span>';
+        }
+    }
+
+    // 4. HISTÓRICO COMPARATIVO EN PASTEL
+    const ctxHist = document.getElementById('historicoChart').getContext('2d');
+    chartHistorico = new Chart(ctxHist, {
+        type: 'line',
+        data: {
+            labels: ['2024', '2025', '2026'],
+            datasets: [
+                { label: 'Promedio', data: [16.5, 17.0, 17.8], borderColor: '#38bdf8', tension: 0.3 },
+                { label: 'Máxima', data: [21.0, 21.8, 22.4], borderColor: '#fbbf24', tension: 0.3 },
+                { label: 'Mínima', data: [11.5, 12.0, 12.7], borderColor: '#34d399', tension: 0.3 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 10 } } } },
+            scales: { y: { grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+        }
+    });
+
+    function cambiarHistorico(variable, btn) {
+        btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (variable === 'prec') {
+            chartHistorico.data.datasets[0].data = [45, 50, 55.5];
+            chartHistorico.data.datasets[1].data = [60, 65, 70];
+            chartHistorico.data.datasets[2].data = [30, 32, 35];
+        } else {
+            chartHistorico.data.datasets[0].data = [16.5, 17.0, 17.8];
+            chartHistorico.data.datasets[1].data = [21.0, 21.8, 22.4];
+            chartHistorico.data.datasets[2].data = [11.5, 12.0, 12.7];
+        }
+        chartHistorico.update();
+    }
+
+    // 5. INICIALIZAR MAPA
+    document.addEventListener("DOMContentLoaded", function () {
+        const map = L.map('mapaSopo').setView([4.9083, -73.9351], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+        L.circle([4.9083, -73.9351], { color: '#f87171', fillColor: '#fca5a5', fillOpacity: 0.4, radius: 900 }).addTo(map);
+        L.circle([4.9200, -73.9200], { color: '#34d399', fillColor: '#6ee7b7', fillOpacity: 0.4, radius: 1100 }).addTo(map);
+    });
+</script>
+{% endblock %}

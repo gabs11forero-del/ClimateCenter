@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clima Sopó</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg-body: #f4f8fb;
+            --bg-sidebar: #e8f1f8;
+            --blanco: #ffffff;
+            --azul-primario: #3498db;
+            --texto-oscuro: #2c3e50;
+            --texto-claro: #7f8c8d;
+            --verde-alerta: #2ecc71;
+            --rojo-alerta: #e74c3c;
+            --borde: #ecf0f1;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--texto-oscuro);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* =========================
+           BARRA LATERAL
+        ========================= */
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--bg-sidebar);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--borde);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h2 {
+            color: var(--azul-primario);
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .logo p {
+            font-size: 12px;
+            color: var(--texto-claro);
+            margin-top: 5px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.3s;
+        }
+
+        .nav-item.active {
+            background-color: var(--azul-primario);
+            color: white;
+        }
+
+        .nav-item:hover:not(.active) {
+            background-color: white;
+        }
+
+        /* =========================
+           CONTENIDO PRINCIPAL
+        ========================= */
+
+        .main-content {
+            flex: 1;
+            padding: 20px 30px;
+            overflow-y: auto;
+        }
+
+        /* =========================
+           NUEVO ENCABEZADO
+        ========================= */
+
+        .header-banner {
+            position: relative;
+            width: 100%;
+            box-sizing: border-box;
+
+            min-height: 125px;
+            border-radius: 18px;
+            padding: 24px 30px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 25px;
+
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+
+            background:
+                linear-gradient(90deg,
+                    rgba(240, 247, 255, 0.95) 0%,
+                    rgba(224, 242, 254, 0.82) 45%,
+                    rgba(255, 255, 255, 0.20) 100%),
+                url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1400&q=80") center/cover no-repeat;
+        }
+
+        .header-title {
+            position: relative;
+            z-index: 2;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .header-banner .header-title h1 {
+            margin: 0;
+            font-size: 2rem;
+            line-height: 1.2;
+            color: #0284c7;
+            font-weight: 800;
+        }
+
+        .header-banner .header-title p {
+            margin: 6px 0 0 0;
+            color: #475569;
+            font-size: 0.88rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .header-banner .header-actions {
+            position: relative;
+            z-index: 2;
+
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+
+            gap: 10px;
+
+            font-size: 0.82rem;
+            color: #0369a1;
+
+            background: rgba(255, 255, 255, 0.88);
+            padding: 8px 12px;
+            border-radius: 12px;
+
+            backdrop-filter: blur(5px);
+            flex-shrink: 0;
+        }
+
+        .header-banner .info-badge {
+            background: transparent;
+            padding: 5px 7px;
+            border-radius: 8px;
+            font-size: 13px;
+            white-space: nowrap;
+            box-shadow: none;
+        }
+
+        .header-banner .btn-refresh {
+            background: #7dd3fc;
+            color: #0c4a6e;
+            border: none;
+
+            padding: 8px 14px;
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-weight: 600;
+            font-size: 0.8rem;
+
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            transition: all 0.2s ease;
+        }
+
+        .header-banner .btn-refresh:hover {
+            background: #38bdf8;
+            color: white;
+        }
+
+        /* =========================
+           GRID DEL DASHBOARD
+        ========================= */
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--blanco);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--borde);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+
+            .sidebar {
+                width: 200px;
+            }
+
+            .header-banner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .header-actions {
+                width: auto;
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            body {
+                flex-direction: column;
+                overflow: auto;
+            }
+
+            .sidebar {
+                width: auto;
+                padding: 12px;
+            }
+
+            .logo {
+                margin-bottom: 10px;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .header-banner {
+                padding: 20px;
+            }
+
+            .header-title h1 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- =========================
+         MENÚ LATERAL
+    ========================= -->
+
+    <div class="sidebar">
+
+        <div class="logo">
+            <h2>☁️ Clima Sopó</h2>
+            <p>Naturaleza que nos informa</p>
+        </div>
+
+        <a href="{{ url_for('inicio') }}">
+            <div class="nav-item {% if request.path == '/' %}active{% endif %}">
+                <i class="fas fa-home"></i>
+                Inicio
+            </div>
+        </a>
+
+        <a href="{{ url_for('tiempo_real') }}">
+            <div class="nav-item {% if request.path == '/tiempo-real' %}active{% endif %}">
+                <i class="fas fa-cloud"></i>
+                Datos en tiempo real
+            </div>
+        </a>
+
+        <a href="{{ url_for('mapa') }}">
+            <div class="nav-item {% if request.path == '/mapa' %}active{% endif %}">
+                <i class="fas fa-map-marked-alt"></i>
+                Mapa climático
+            </div>
+        </a>
+
+    </div>
+
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================= -->
+
+    <div class="main-content">
+
+        <!-- NUEVO HEADER -->
+
+
+        <div class="header-banner">
+
+            <div class="header-title">
+
+                <h1>
+                    Hola, Sopó
+                </h1>
+
+                <p>
+                    Monitoreo y análisis climático del municipio de Sopó, Cundinamarca
+                </p>
+
+            </div>
+
+
+            <div class="header-actions">
+
+                <div class="info-badge">
+                    <i class="far fa-calendar"></i>
+                    <span id="fecha-actual"></span>
+                </div>
+
+                <div class="info-badge">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Sopó, Cundinamarca
+                </div>
+
+                <button class="btn-refresh" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i>
+                    Actualizar
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             AQUÍ SE INYECTA CADA PÁGINA
+        ========================= -->
+
+        {% block content %}{% endblock %}
+
+    </div>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        // Fecha para el header en todas las páginas
+
+        const opcionesFecha = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
+
+        document.getElementById('fecha-actual').innerText =
+            new Date().toLocaleDateString('es-ES', opcionesFecha);
+
+    </script>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+
+</html>

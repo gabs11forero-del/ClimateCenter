@@ -311,6 +311,20 @@
             </div>
         </a>
 
+        <a href="{{ url_for('consejos') }}">
+            <div class="nav-item {% if request.path == '/consejos' %}active{% endif %}">
+                <i class="fas fa-lightbulb"></i>
+                Consejos
+            </div>
+        </a>
+
+        <a href="{{ url_for('info_adicional') }}">
+            <div class="nav-item {% if request.path == '/info_adicional' %}active{% endif %}">
+                <i class="fas fa-info"></i>
+                Información adicional
+            </div>
+        </a>
+
     </div>
 
 

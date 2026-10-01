@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --bg-main: #f4f7fb;
+        --card-bg: #ffffff;
+        --text-dark: #334155;
+        --text-muted: #64748b;
+        --pastel-blue-bg: #e0f2fe;
+        --pastel-purple-bg: #f3e8ff;
+        --pastel-green-bg: #e6f4ea;
+        --pastel-yellow-bg: #fef9c3;
+        --pastel-red-bg: #ffe4e6;
+    }
+
+    /* Contenedor flexible adaptado a la distribución de base.html */
+    .emergency-container {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 5px;
+    }
+
+    .header-bar {
+        background: white;
+        padding: 18px 20px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .btn-back {
+        text-decoration: none;
+        color: #0369a1;
+        background: var(--pastel-blue-bg);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-back:hover {
+        background: #bae6fd;
+    }
+
+    .header-bar h1 {
+        margin: 0;
+        font-size: 1.35rem;
+        color: #0284c7;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Grid responsive de tarjetas */
+    .emergency-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+    }
+
+    .card-alert {
+        background: var(--card-bg);
+        border-radius: 14px;
+        padding: 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+        scroll-margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-alert-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 10px;
+    }
+
+    .card-alert-header i {
+        font-size: 1.5rem;
+    }
+
+    .card-alert-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--text-dark);
+    }
+
+    .alert-steps {
+        padding-left: 18px;
+        margin: 8px 0 0 0;
+        font-size: 0.85rem;
+        color: #475569;
+    }
+
+    .alert-steps li {
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+
+    .contact-box {
+        background: var(--pastel-red-bg);
+        border: 1px solid #fecdd3;
+        border-radius: 12px;
+        padding: 15px;
+        margin-top: 20px;
+        text-align: center;
+        color: #9f1239;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="emergency-container">
+    <div class="header-bar">
+        <h1><i class="fas fa-life-ring" style="color: #fb7185;"></i> Centro de Prevención y Emergencias</h1>
+        <!-- Ruta corregida apuntando a la raíz del sitio -->
+        <a href="/" class="btn-back"><i class="fas fa-arrow-left"></i> Volver al Inicio</a>
+    </div>
+
+    <div class="emergency-grid">
+
+        <!-- Tormenta eléctrica -->
+        <div class="card-alert" id="tormenta">
+            <div class="card-alert-header">
+                <i class="fas fa-bolt" style="color: #c084fc;"></i>
+                <h3>Tormenta Eléctrica</h3>
+            </div>
+            <ul class="alert-steps">
+                <li>Busca refugio de inmediato dentro de una vivienda o edificio robusto.</li>
+                <li>Desconecta aparatos electrónicos para evitar daños por sobretensión.</li>
+                <li>Aléjate de árboles altos, postes, cercas metálicas y cuerpos de agua.</li>
+                <li>Si te encuentras al aire libre, evita refugiarte debajo de estructuras aisladas.</li>
+            </ul>
+        </div>
+
+        <!-- Lluvias intensas -->
+        <div class="card-alert" id="lluvias">
+            <div class="card-alert-header">
+                <i class="fas fa-cloud-showers-heavy" style="color: #38bdf8;"></i>
+                <h3>Lluvias Intensas</h3>
+            </div>
+            <ul class="alert-steps">
+                <li>Lleva prendas impermeables y reduce la velocidad si estás conduciendo.</li>
+                <li>Limpia canaletas y desagües en casa para evitar encharcamientos.</li>
+                <li>Evita transitar por vías propensas a empozamientos o arroyos momentáneos.</li>
+                <li>Mantén cargado tu teléfono móvil y un kit de emergencia básico a mano.</li>
+            </ul>
+        </div>
+
+        <!-- Inundación -->
+        <div class="card-alert" id="inundacion">
+            <div class="card-alert-header">
+                <i class="fas fa-house-damage" style="color: #22d3ee;"></i>
+                <h3>Inundación</h3>
+            </div>
+            <ul class="alert-steps">
+                <li>Desconecta el fluido eléctrico y el suministro de gas si el agua comienza a ingresar.</li>
+                <li>Desplázate hacia zonas elevadas o pisos superiores con tus documentos básicos.</li>
+                <li>No intentes cruzar a pie ni en vehículo áreas inundadas o corrientes de agua.</li>
+                <li>Sigue atentamente los comunicados de los organismos de socorro locales.</li>
+            </ul>
+        </div>
+
+        <!-- Vientos fuertes -->
+        <div class="card-alert" id="vientos">
+            <div class="card-alert-header">
+                <i class="fas fa-wind" style="color: #34d399;"></i>
+                <h3>Vientos Fuertes</h3>
+            </div>
+            <ul class="alert-steps">
+                <li>Asegura techos, láminas, tejas, macetas y objetos sueltos en balcones o patios.</li>
+                <li>Aléjate de muros en mal estado, vallas publicitarias y árboles de gran tamaño.</li>
+                <li>Cierra e interioriza el aseguramiento de puertas y ventanas.</li>
+                <li>Conduce con extrema precaución, sosteniendo firmemente el volante.</li>
+            </ul>
+        </div>
+
+        <!-- Deslizamientos -->
+        <div class="card-alert" id="deslizamientos">
+            <div class="card-alert-header">
+                <i class="fas fa-mountain" style="color: #fbbf24;"></i>
+                <h3>Deslizamientos</h3>
+            </div>
+            <ul class="alert-steps">
+                <li>Vigila grietas o hundimientos en terrenos, ladera o paredes de tu vivienda.</li>
+                <li>Si vives en ladera y se registran lluvias prolongadas, mantente alerta ante ruidos extraños.</li>
+                <li>Evacúa de inmediato si detectas flujo de lodo o desprendimiento de rocas.</li>
+                <li>Reporta grietas en la ladera a la alcaldía o a los bomberos de Sopó.</li>
+            </ul>
+        </div>
+
+        <!-- Calor extremo -->
+        <div class="card-alert" id="calor">
+            <div class="card-alert-header">
+                <i class="fas fa-temperature-high" style="color: #fb7185;"></i>
+                <h3>Calor Extremo</h3>
+            </div>
+            <ul class="alert-steps">
+                <li>Mantente constantemente hidratado, consumiendo agua periódicamente.</li>
+                <li>Evita la exposición prolongada al sol entre las 10:00 a. m. y las 3:00 p. m.</li>
+                <li>Utiliza prendas frescas, de tonos claros y sombrero o gorra de ala ancha.</li>
+                <li>Presta especial atención a niños pequeños y adultos mayores.</li>
+            </ul>
+        </div>
+
+        <!-- Baja visibilidad -->
+        <div class="card-alert" id="visibilidad">
+            <div class="card-alert-header">
+                <i class="fas fa-smog" style="color: #94a3b8;"></i>
+                <h3>Baja Visibilidad (Niebla)</h3>
+            </div>
+            <ul class="alert-steps">
+                <li>Enciende las luces exploradoras o de cruce al conducir; evita las altas.</li>
+                <li>Reduce sensiblemente la velocidad y aumenta la distancia de seguridad entre vehículos.</li>
+                <li>Usa las marcas viales de la carretera como guía para mantener la trayectoria.</li>
+                <li>Si la visibilidad es nula, oríllate en un lugar seguro fuera de la vía y activa estacionarias.</li>
+            </ul>
+        </div>
+
+        <!-- Temperaturas extremas -->
+        <div class="card-alert" id="temperaturas">
+            <div class="card-alert-header">
+                <i class="fas fa-temperature-low" style="color: #f472b6;"></i>
+                <h3>Temperaturas Extremas / Heladas</h3>
+            </div>
+            <ul class="alert-steps">
+                <li>Protege cultivos y plantas vulnerables cubriéndolos durante la noche/madrugada.</li>
+                <li>Abrígate adecuadamente usando capas de ropa para conservar el calor corporal.</li>
+                <li>Garantiza refugio térmico a tus mascotas o animales de granja.</li>
+                <li>Consume bebidas calientes y alimentos ricos en vitamina C.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div class="contact-box">
+        <h3 style="margin: 0 0 5px 0;"><i class="fas fa-phone-alt"></i> Números de Emergencia en Sopó</h3>
+        <p style="margin: 0; font-size: 0.9rem;">Bomberos Sopó: <b>(601) 857 2000</b> | Policía Nacional: <b>123</b> |
+            Defensa Civil Sopó: <b>144</b></p>
+    </div>
+</div>
+{% endblock %}

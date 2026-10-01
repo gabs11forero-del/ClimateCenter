@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --bg-main: #f4f7fb;
+        --card-bg: #ffffff;
+        --text-dark: #334155;
+        --text-muted: #64748b;
+        --pastel-blue-bg: #e0f2fe;
+        --pastel-purple-bg: #f3e8ff;
+        --pastel-green-bg: #e6f4ea;
+        --pastel-yellow-bg: #fef9c3;
+    }
+
+    /* Contenedor fluido sin anchos fijos que desborden el layout */
+    .tips-container {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 5px;
+    }
+
+    .header-bar {
+        background: white;
+        padding: 18px 20px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .btn-back {
+        text-decoration: none;
+        color: #0369a1;
+        background: var(--pastel-blue-bg);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-back:hover {
+        background: #bae6fd;
+    }
+
+    .header-bar h1 {
+        margin: 0;
+        font-size: 1.35rem;
+        color: #0d9488;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Grid fluido adaptado al espacio real de la pantalla */
+    .sections-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+    }
+
+    .card-recommendation {
+        background: var(--card-bg);
+        border-radius: 14px;
+        padding: 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-recommendation-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .card-recommendation-header i {
+        font-size: 1.5rem;
+    }
+
+    .card-recommendation-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--text-dark);
+    }
+
+    .tip-list {
+        padding-left: 18px;
+        margin: 0;
+        font-size: 0.85rem;
+        color: #475569;
+    }
+
+    .tip-list li {
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+
+    .disclaimer-box {
+        background: var(--pastel-blue-bg);
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin-top: 20px;
+        font-size: 0.8rem;
+        color: #0369a1;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tips-container">
+    <div class="header-bar">
+        <h1><i class="fas fa-lightbulb" style="color: #34d399;"></i> Consejos y Recomendaciones</h1>
+        <!-- Se ajustó la ruta a la raíz ('/') para solucionar el error Not Found -->
+        <a href="/" class="btn-back"><i class="fas fa-arrow-left"></i> Volver al Inicio</a>
+    </div>
+
+    <div class="sections-grid">
+        <!-- Qué llevar según el clima -->
+        <div class="card-recommendation">
+            <div class="card-recommendation-header">
+                <i class="fas fa-tshirt" style="color: #34d399;"></i>
+                <h3>Qué llevar según el clima</h3>
+            </div>
+            <ul class="tip-list">
+                <li><b>Días lluviosos:</b> Carga siempre chaqueta impermeable, sombrilla y calzado con buena adherencia.
+                </li>
+                <li><b>Días fríos o mañanas:</b> Vístete por capas (abrigo ligero, bufanda y saco) para adaptarte al
+                    cambio de temperatura.</li>
+                <li><b>Días soleados:</b> Prefiere prendas ligeras de manga larga, sombrero o gorra.</li>
+            </ul>
+        </div>
+
+        <!-- Cuidado con la radiación UV -->
+        <div class="card-recommendation">
+            <div class="card-recommendation-header">
+                <i class="fas fa-glasses" style="color: #facc15;"></i>
+                <h3>Cuidado con la radiación UV</h3>
+            </div>
+            <ul class="tip-list">
+                <li>Aplica protector solar con FPS 30+ en piel expuesta, incluso en días nublados.</li>
+                <li>Utiliza gafas de sol con filtro UV400 para prevenir fatiga visual o daños oculares.</li>
+                <li>Procura no permanecer bajo el sol directo durante las horas de mayor índice radiativo.</li>
+            </ul>
+        </div>
+
+        <!-- Protege tu salud respiratoria -->
+        <div class="card-recommendation">
+            <div class="card-recommendation-header">
+                <i class="fas fa-head-side-mask" style="color: #38bdf8;"></i>
+                <h3>Protege tu salud respiratoria</h3>
+            </div>
+            <ul class="tip-list">
+                <li>Evita los cambios bruscos de temperatura al salir de espacios cerrados y calurosos.</li>
+                <li>En épocas de alta neblina o humedad elevada, usa tapabocas si sufres de alergias o asma.</li>
+                <li>Procura mantener tus esquemas de vacunación al día contra afecciones respiratorias.</li>
+            </ul>
+        </div>
+
+        <!-- Cuida la naturaleza -->
+        <div class="card-recommendation">
+            <div class="card-recommendation-header">
+                <i class="fas fa-leaf" style="color: #34d399;"></i>
+                <h3>Cuida la naturaleza</h3>
+            </div>
+            <ul class="tip-list">
+                <li>No arrojes residuos en ríos, senderos ni zonas verdes para evitar taponamientos de cauces.</li>
+                <li>Evita encender fogatas en áreas montañosas o secas para prevenir incendios forestales.</li>
+                <li>Recoge tus residuos al realizar actividades al aire libre en el municipio.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="disclaimer-box">
+        <i class="fas fa-info-circle" style="font-size: 1.1rem; margin-top: 2px;"></i>
+        <span><strong>Recuerda:</strong> estas recomendaciones no reemplazan las indicaciones de las autoridades locales
+            y nacionales. En caso de emergencia, comunícate siempre con los números oficiales.</span>
+    </div>
+</div>
+{% endblock %}

@@ -41,8 +41,6 @@
         gap: 15px;
     }
 
-
-
     /* Tarjetas principales estilo pastel */
     .card {
         background: var(--card-bg);
@@ -558,18 +556,12 @@
             </div>
         </div>
 
-        <!-- Fila: Mapa Climático y Comparación Histórica -->
+        <!-- Fila: Mapa de Calor y Comparación Histórica -->
         <div class="inner-grid-2">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-map-marked-alt" style="color: #38bdf8;"></i> Mapa
-                        climático de Sopó</h3>
-                    <div class="tab-group">
-                        <button class="tab-btn tab-btn-blue active">Temperatura</button>
-                        <button class="tab-btn tab-btn-blue">Lluvia</button>
-                        <button class="tab-btn tab-btn-blue">Viento</button>
-                        <button class="tab-btn tab-btn-blue">Humedad</button>
-                    </div>
+                    <h3 class="card-title"><i class="fas fa-fire" style="color: #fb7185;"></i> Mapa de Calor Térmico
+                        (Sopó - Briceño - Pionono)</h3>
                 </div>
                 <div id="mapaSopo" style="height: 160px; border-radius: 8px;"></div>
             </div>
@@ -716,9 +708,10 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Script CDN Chart.js y Leaflet -->
+<!-- Script CDN Chart.js, Leaflet y Leaflet Heat Plugin -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
 <script>
     let chartTempEvolucion, chartPrecip, chartHistorico;
@@ -832,12 +825,44 @@
         chartHistorico.update();
     }
 
-    // 5. INICIALIZAR MAPA
+    // 5. INICIALIZAR MAPA DE CALOR CON SOPÓ, BRICEÑO Y PIONONO
     document.addEventListener("DOMContentLoaded", function () {
-        const map = L.map('mapaSopo').setView([4.9083, -73.9351], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
-        L.circle([4.9083, -73.9351], { color: '#f87171', fillColor: '#fca5a5', fillOpacity: 0.4, radius: 900 }).addTo(map);
-        L.circle([4.9200, -73.9200], { color: '#34d399', fillColor: '#6ee7b7', fillOpacity: 0.4, radius: 1100 }).addTo(map);
+        // Coordenadas fijas para centrar la vista general de los tres puntos
+        const map = L.map('mapaSopo').setView([4.9200, -73.9350], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // Coordenadas y valores de temperatura/intensidad
+        const puntosCalor = [
+            [4.9083, -73.9351, 0.8], // Sopó Centro (18°C)
+            [4.9455, -73.9535, 1.0], // Briceño (19°C - Mayor intensidad térmica)
+            [4.8872, -73.9180, 0.4]  // Pionono (14°C - Más frío / menor intensidad térmica)
+        ];
+
+        // Añadir capa de mapa de calor
+        L.heatLayer(puntosCalor, {
+            radius: 35,
+            blur: 25,
+            maxZoom: 14,
+            gradient: {
+                0.3: '#38bdf8', // Frío (Azul pastel)
+                0.6: '#facc15', // Templado (Amarillo)
+                0.9: '#fb7185'  // Cálido (Rojo/Rosa)
+            }
+        }).addTo(map);
+
+        // Marcadores e información rápida en Popups
+        L.marker([4.9083, -73.9351]).addTo(map)
+            .bindPopup('<b>Sopó (Centro)</b><br>Temp. Actual: 18°C');
+
+        L.marker([4.9455, -73.9535]).addTo(map)
+            .bindPopup('<b>Briceño</b><br>Temp. Actual: 19°C');
+
+        L.marker([4.8872, -73.9180]).addTo(map)
+            .bindPopup('<b>Parque Ecológico Pionono</b><br>Temp. Actual: 14°C');
     });
 </script>
 {% endblock %}

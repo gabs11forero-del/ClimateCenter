@@ -24,6 +24,14 @@ def tiempo_real():
 def mapa():
     return render_template('mapa.html')
 
+@app.route('/consejos')
+def consejos():
+    return render_template('consejos.html')
+
+@app.route('/info_adicional')
+def info_adicional():
+    return render_template('prevencion.html')
+
 @app.route('/api/guardar_datos', methods=['POST'])
 def guardar_datos():
     data = request.json
